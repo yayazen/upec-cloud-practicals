@@ -1,0 +1,28 @@
+---
+# Instead of accessing a pods individually, a service allows to distribute requests
+# amongst pods.
+#
+# Steps
+# -----
+#   1. Create a ClusterIP Service.
+#   2. Access the service using: kubectl port-forward svc/simple-replicas 8080:80
+#
+# Tips
+# ----
+#   You should consider using labels selectors as you did
+#   for the ReplicationController.
+#
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-rc
+spec:
+  type: ClusterIP
+  selector:
+    exo: simple-rc
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80

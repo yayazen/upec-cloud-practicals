@@ -1,0 +1,30 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: simple-rc
+spec:
+  replicas: 3
+  selector:
+    exo: simple-rc
+  template:
+    metadata:
+      name: simple-rc 
+      labels:
+        exo: simple-rc
+    spec:
+      volumes:
+      - name: index
+        configMap:
+          items:
+          - { key: "index.html", path : "index.html" }
+          name: simple-pod-html
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - name: index
+          mountPath: /usr/share/nginx/html
