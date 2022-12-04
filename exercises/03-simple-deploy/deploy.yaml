@@ -1,39 +1,47 @@
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deploy
-  labels:
-    exo: simple-deploy
+  name: nginx
 spec:
   replicas: 1
-  selector:
-    exo: simple-deploy
+  selector: {}
   template:
     metadata:
       name: nginx
-      labels:
-        exo: simple-deploy
     spec:
       volumes:
       - configMap:
           name: nginx-config 
         name: nginx-config
+      - name: html
+        configMap:
+          items:
+          - { key: "index.html", path : "index.html" }
+          name: html
+          optional: true
       - secret:
           defaultMode: 0400
           secretName: basic-auth
           items:
-          - { key: .htpasswd, path: .htpasswd }
+          - { key: ".htpasswd", path: ".htpasswd" }
         name: basic-auth
-      restartPolicy: Never
       containers:
       - name: nginx
         image: nginx:latest
         ports:
         - containerPort: 80
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
         volumeMounts:
         - name: nginx-config
           mountPath: /etc/nginx/conf.d
+        - name: html
+          mountPath: /usr/share/nginx/html
         - name: basic-auth
           mountPath: /secrets
