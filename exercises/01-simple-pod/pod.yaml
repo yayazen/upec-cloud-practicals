@@ -6,11 +6,7 @@ metadata:
 spec:
   volumes:
   - name: html
-    configMap:
-      items:
-      - { key: "index.html", path : "index.html" }
-      name: html
-      optional: true
+    emptyDir: {}
   containers:
   - name: nginx
     image: nginx:latest
@@ -20,9 +16,3 @@ spec:
     volumeMounts:
     - name: html
       mountPath: /usr/share/nginx/html
-    readinessProbe:
-      httpGet:
-        path: /index.html
-        port: 80
-      initialDelaySeconds: 5
-      periodSeconds: 5

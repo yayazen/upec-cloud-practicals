@@ -12,16 +12,20 @@ resources:
 - deploy.yaml
 - service.yaml
 
-configMapGenerator:
-- name: nginx-config
-  options:
-    disableNameSuffixHash: true
-  files:
-  - auth-nginx.conf
-
-secretGenerator:
-- name: basic-auth
-  options:
-    disableNameSuffixHash: true
-  files:
-  - .htpasswd
+## Uncomment to enable auth
+#configMapGenerator:
+#- name: nginx-config
+#  options:
+#    disableNameSuffixHash: true
+#  files:
+#  - auth-nginx.conf
+#
+#secretGenerator:
+#- name: basic-auth
+#  options:
+#    disableNameSuffixHash: true
+#  files:
+#  - .htpasswd
+#
+#patches:
+#- path: patch-basic-auth.yaml

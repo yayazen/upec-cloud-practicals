@@ -13,22 +13,12 @@ spec:
       labels:
         exo: simple-rc
     spec:
-      volumes:
-      - name: html
-        configMap:
-          items:
-          - { key: "index.html", path : "index.html" }
-          name: html
-          optional: true
       containers:
       - name: nginx
         image: nginx:latest
         ports:
         - containerPort: 80
           protocol: TCP
-        volumeMounts:
-        - name: html
-          mountPath: /usr/share/nginx/html
         readinessProbe:
           httpGet:
             path: /index.html

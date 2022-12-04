@@ -10,38 +10,9 @@ spec:
     metadata:
       name: nginx
     spec:
-      volumes:
-      - configMap:
-          name: nginx-config 
-        name: nginx-config
-      - name: html
-        configMap:
-          items:
-          - { key: "index.html", path : "index.html" }
-          name: html
-          optional: true
-      - secret:
-          defaultMode: 0400
-          secretName: basic-auth
-          items:
-          - { key: ".htpasswd", path: ".htpasswd" }
-        name: basic-auth
       containers:
       - name: nginx
         image: nginx:latest
         ports:
         - containerPort: 80
           protocol: TCP
-        readinessProbe:
-          httpGet:
-            path: /index.html
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/conf.d
-        - name: html
-          mountPath: /usr/share/nginx/html
-        - name: basic-auth
-          mountPath: /secrets

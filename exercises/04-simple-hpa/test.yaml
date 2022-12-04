@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: simple-hpa-test
+spec:
+  restartPolicy: Never
+  containers:
+  - name: test
+    image: busybox:latest
+    command:
+    - /bin/sh
+    - -c
+    - |
+      while sleep 0.01; do
+        wget -q -O- http://${SERVICE}
+      done
+    env:
+    - name: SERVICE
+      value: simple-hpa-php

@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  volumes:
+  - name: html
+    emptyDir: null
+    configMap:
+      items:
+      - { key: "index.html", path : "index.html" }
+      name: html
+    optional: true
