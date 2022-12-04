@@ -18,13 +18,13 @@ spec:
 
 Once it is running, we will modify the manifest in order to add a basic authentication flow. Deployments can detect changes and perform hot reloads of pods configuration.
 
-Precisely, it must present those additional elements :
+Precisely, it must present some additional elements :
 
-- a ConfigMap with your html content (same as in simple-pod)
 - a ConfigMap containing the file  `auth-nginx.conf` and mounted on `/etc/nginx/conf.d`
 - a Secret containing the file `.htpasswd` and mounted on `/secrets`
 
-Both ConfigMaps and Secret store the data the same way (in key/value pairs) but ConfigMaps are meant for plain text data. Secrets values on the other hand, are `base64` encoded as they can contain binary data.
+
+Both ConfigMaps and Secrets store the data the same way (in key/value pairs), but ConfigMaps are meant for plain text data. Secrets values on the other hand, are `base64` encoded as they can contain binary data.
 
 > `htpasswd -c .htpasswd alice` create a new credential file that contains the MD5 hash of alice's password.
 
@@ -40,7 +40,6 @@ Don't forget to create a service to expose your deployment inside the cluster.
 
 > You can also scale replicas up and down in a deployment.
 
-<br>
 The application should prompt you to enter a login and password before serving the page.
 
 
