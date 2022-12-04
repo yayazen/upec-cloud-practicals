@@ -1,11 +1,12 @@
 ## A simple web application
 
-You will manipulate you pods and configmaps in order to deploy a microservice in kubernetes.
+You will manipulate pods and configmaps in order to deploy a microservice in kubernetes.
 
 
 #### 1. Declare a pod
 
-The following Pod must contain an nginx container with an empty volume attached to `/usr/share/nginx/html`.  
+Complete the following Pod manifest in order to deploy an nginx container with an empty volume attached to  
+`/usr/share/nginx/html`.  
 
 ```yaml
 # To create: kubectl apply -f pod.yaml
@@ -40,7 +41,7 @@ kubectl get all -l "exo=simple-pod" -o yaml
 kubectl get pod/simple-pod-nginx -o jsonpath='{.status.podIP}'
 ```
 
-You can also show the logs from the containered application once its running.
+You can also print the logs from the containered application.
 ```bash
 kubectl logs pod/simple-pod-nginx
 ```
@@ -96,4 +97,4 @@ data: {}
 
 Finaly modify the pod declaration in order to mount this configmap at `/usr/share/nginx/html`.
 
-The application should server its content from the configmap and which allow the configuration to survive in the event of a reboot.
+The application should serve its html content from the configmap and it will allow the configuration to survive reboots.
