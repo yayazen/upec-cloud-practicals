@@ -3,7 +3,7 @@
 
 #### 1. Simulate a node failure
 
-A pod is smallest unit of compute in kuberntes. It is tied to a single node runtime and does not come with a lot of workload logic.
+A pod is the smallest unit of compute in kubernetes. It is tied to a single node runtime and does not come with a lot of workload logic.
 
 This command prints the node running our simple-pod.
 
@@ -62,7 +62,6 @@ kubectl scale --replicas=5 rc/simple-rc-nginx
 #### 3. Create a service
 
 Port forwarding to a pod is not very convenient with multiple replicas. Ideally we need a way to address them in a load balanced manner.
-
 A `Service` resource is the standard way of exposing an application inside the cluster. It uses selectors to distribute traffic amongst selected pods.
 
 Create a `svc.spec.type.clusterIP` service to expose the replicas inside the cluster.
