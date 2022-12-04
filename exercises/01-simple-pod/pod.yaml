@@ -2,14 +2,15 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod
+  name: nginx
 spec:
   volumes:
-  - name: index
+  - name: html
     configMap:
       items:
       - { key: "index.html", path : "index.html" }
-      name: pod-html
+      name: html
+      optional: true
   containers:
   - name: nginx
     image: nginx:latest
@@ -17,5 +18,11 @@ spec:
     - containerPort: 80
       protocol: TCP
     volumeMounts:
-    - name: index
+    - name: html
       mountPath: /usr/share/nginx/html
+    readinessProbe:
+      httpGet:
+        path: /index.html
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 5

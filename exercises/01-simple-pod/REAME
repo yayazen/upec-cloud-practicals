@@ -1,6 +1,6 @@
-## A simple web microservice
+## A simple web application
 
-You will manipulate your first kubernetes resources to deploy a microservice.
+You will manipulate you pods and configmaps in order to deploy a microservice in kubernetes.
 
 
 #### 1. Declare a pod
@@ -23,20 +23,24 @@ spec:
   containers: {} # TODO
 ```
 
-You can review the results through various kubectl commands. 
+<br> 
+You can review the results through various kubectl commands.  
 
 ```bash
 # Describe resources and show event logs from Kubernetes controllers
 kubectl describe pod/simple-pod-nginx
+
 # Get brief of a pod
 kubectl get pod/simple-pod-nginx
-# Get brief of multiple resources filtered by label in yaml
+
+# Get brief of resources filtered by label in the yaml format
 kubectl get all -l "exo=simple-pod" -o yaml
+
 # Get a specific field value from a resource (here the pod's IP)
 kubectl get pod/simple-pod-nginx -o jsonpath='{.status.podIP}'
 ```
 
-And get the logs from the containered application once its running.
+You can also show the logs from the containered application once its running.
 ```bash
 kubectl logs pod/simple-pod-nginx
 ```
@@ -51,11 +55,11 @@ kubectl port-forward pod/simple-pod 8080:80
 <br>
 
 Surprisingly, the web page shows an error 403.
-> Can you hypothesize on why it occured ? Maybe using the application logs.
+> Can you hypothesize on why it occurred ? Maybe using the application logs.
 
 <br>
 
-However we notice that the pod is in a ready state thus in contradiction with the application state.
+However we notice that the pod is in a ready state and contradicts the real state of our application.
 ```bash
 NAME                   READY   STATUS    RESTARTS   AGE
 pod/simple-pod-nginx   1/1     Running   0          1m
@@ -63,12 +67,12 @@ pod/simple-pod-nginx   1/1     Running   0          1m
 
 #### 3. Evaluate the readiness of a container
 
-Try to add a `readinessProbe` to your container definition that leaves the pod in an unready state until the web page is ready.
+Try to add a `readinessProbe` to your container definition that leaves the pod in an unready state until the web page is answering with a 200 response code.
 
 #### 4. Fix the web page
 
 You should update the web content by uploading the `index.html` to the container web root.
-> `kubectl cp` can be handy
+> `kubectl cp` can be quite handy
 
 The page should now display correctly and the pod should hop in a ready state. However while its okay to use `cp` in some cases, here changes won't persist after the pod's lifetime.
 
@@ -79,7 +83,7 @@ A ConfigMap is a very handy resource that can hold configuration data for an app
  
 You can use the CLI and `kubectl create` to generate the configuration from the index.html file.  
 
-Or choose to adjust the following manifest
+Also you can choose to adjust the following manifest :
 
 ```yaml
 apiVersion: v1
@@ -90,6 +94,6 @@ data: {}
 
 ```
 
-Finaly modify the pod declaration in order to mount this ConfigMap at `/usr/share/nginx/html`.
+Finaly modify the pod declaration in order to mount this configmap at `/usr/share/nginx/html`.
 
-The application shoud serve our html files from now on and it will survive reboot.
+The application should server its content from the configmap and which allow the configuration to survive in the event of a reboot.
