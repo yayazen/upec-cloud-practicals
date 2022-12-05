@@ -17,7 +17,7 @@ configMapGenerator:
 
 resources:
 - deploy.yaml
-- hpa.yaml
+#- hpa.yaml
 
 patchesStrategicMerge:
 - patch-resources.yaml

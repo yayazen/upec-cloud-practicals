@@ -1,37 +1,46 @@
 #!/usr/bin/env bash
-#set -e
+
+OS_PUBLIC_ENDPOINT_FQDN="horizon.master-oivm.fr"
+OS_PUBLIC_ENDPOINT_IPV4="10.10.0.2"
 
 [ -n "$DEBUG" ] && set -e
+#exec 3>&1 &>/dev/null
 
 VENV="${1:-.venv}"
 ACTIVATE="$VENV/bin/activate"
 if grep -qEi 'debian|ubuntu|mint' /etc/*release; then
     PKGMANAGER="apt"
+    PKGMANAGER_CACHE="apt update"
 elif grep -qEi 'fedora|centos|redhat' /etc/*release; then
     PKGMANAGER="yum"
+    PKGMANAGER_CACHE="yum makecache"
 else
     echo "OS is not supported."
     exit
 fi
 
-OS_PUBLIC_ENDPOINT_FQDN="horizon.master-oivm.fr"
-OS_PUBLIC_ENDPOINT_IPV4="10.10.0.2"
-
 enter_venv () {
     local VENV=${1:-".venv"}
-    pkg_install python3 python3-venv
-    python3 -m venv "$VENV"
+    pkg_install python3
+    [ $PKGMANAGER == "apt" ] && pkg_install python3-venv
+    python3 -m venv "$VENV" || exit
     source "$VENV/bin/activate"
 }
 
 pkg_exist () { 
-    $PKGMANAGER list --installed | grep -qi "^$1" || command -v "$pkg" &>/dev/null
+    $PKGMANAGER list --installed 2>/dev/null | grep -qi "^$1" || command -v "$1" &>/dev/null
 }
 
 pkg_install () {
     for pkg in "$@"; do
         if ! pkg_exist "$pkg"; then
-            sudo $PKGMANAGER -y install "$pkg" >/dev/null && echo "[OK] $pkg" || echo "[Error] $pkg"
+            if [ "$EUID" -ne 0 ]; then
+                echo "$pkg needs to be installed"
+                echo "Please run as root"
+            exit
+            fi
+            $PKGMANAGER_CACHE &>/dev/null
+            $PKGMANAGER -y install "$pkg" &>/dev/null && echo "[OK] $pkg" || echo "[Error] $pkg"
         fi
     done
 }
@@ -44,13 +53,13 @@ setuptools
 wheel
 python-openstackclient
 EOF
-    pip install --upgrade -r "$REQUIREMENTS"
+#    pip install --upgrade -r "$REQUIREMENTS"
     rm -f "$REQUIREMENTS"
     
     local BIN=$(echo ${PATH%%:*})
     mkdir -p "$BIN"
 
-    pkg_install curl unzip openvpn
+    pkg_install curl unzip wget #openvpn
 
     if ! pkg_exist terraform; then
         local TEMPFILE=$(mktemp) 
@@ -59,15 +68,33 @@ EOF
         unzip "$TEMPFILE" -d "$BIN"
         chmod +x "$BIN/terraform"
         rm -f "$TEMPFILE"
+    else
+        echo "[Ok] $(which terraform)"
+    fi
+    
+    if ! pkg_exist docker; then
+        apt-get -y install ca-certificates gnupg lsb-release
+        mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+            $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+        apt-get update &>/dev/null
+        apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin &>/dev/null
+    else
+        echo "[Ok] $(which docker)"
     fi
     
     if ! pkg_exist k3d; then
-        wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash  
+        wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash 
+    else
+        echo "[Ok] $(which k3d)"
     fi
     
     if ! pkg_exist kubectl; then
         curl -Ls "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o "$BIN/kubectl"
-        chmod +x "$BIN/kubectl"
+        chmod +x "$BIN/kubectl" 
+    else
+        echo "[Ok] $(which kubectl)"
     fi
 }
 

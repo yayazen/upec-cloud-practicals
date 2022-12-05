@@ -13,7 +13,8 @@ spec:
     - -c
     - |
       while sleep 0.01; do
-        wget -q -O- http://${SERVICE}
+        echo "ok"
+        wget --spider -S "http://{SERVICE}" 2>&1 | grep "HTTP/" | awk '{print $2}'
       done
     env:
     - name: SERVICE
